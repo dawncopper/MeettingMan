@@ -23,6 +23,7 @@
         <a href="#speakers">嘉宾阵容</a>
         <a href="#venue">会场交通</a>
         <a href="#seat">座位查询</a>
+        <a href="javascript:openMe()">我的</a>
         <button class="btn sm" onclick="openReg()">报名参会</button>
       </nav>
     </div>
@@ -132,9 +133,6 @@
     <div class="section-head"><h2>联系我们</h2></div>
     <div class="card">
       <ul class="venue-info" id="contactInfo"></ul>
-      <p style="text-align:center;margin:16px 0 0">
-        <a class="btn ghost sm" href="admin.html">进入管理后台 →</a>
-      </p>
     </div>
   </section>
 
@@ -149,6 +147,8 @@
     <a href="#agenda" data-tab="agenda"><span class="ic">📅</span>议程</a>
     <a href="#speakers" data-tab="speakers"><span class="ic">🌟</span>嘉宾</a>
     <a href="#venue" data-tab="venue"><span class="ic">📍</span>会场</a>
+    <a href="javascript:openMe()" data-tab="me"><span class="ic">👤</span>我的</a>
+    <span id="extraModules" style="display:contents"></span>
     <a href="javascript:openReg()" class="cta"><span class="pill">报名</span></a>
   </nav>
 
@@ -162,24 +162,54 @@
       <h3>报名参会</h3>
       <div class="sub" id="regSub">填写以下信息，免费领取参会名额</div>
       <form id="regForm" novalidate>
-        <div class="field" id="f-name">
-          <label>姓名 <span class="req">*</span></label>
-          <input name="name" placeholder="请输入真实姓名" />
-          <div class="err">请填写姓名</div>
+        <div class="field">
+          <label>报名方式</label>
+          <div class="seg">
+            <input type="radio" name="mode" id="m1" value="single" checked /><label for="m1">个人报名</label>
+            <input type="radio" name="mode" id="m2" value="team" /><label for="m2">团队报名</label>
+          </div>
         </div>
-        <div class="field" id="f-phone">
-          <label>手机号 <span class="req">*</span></label>
-          <input name="phone" inputmode="numeric" maxlength="11" placeholder="用于接收入场凭证" />
-          <div class="err">请填写正确的 11 位手机号</div>
+        <div id="singleFields">
+          <div class="field" id="f-name">
+            <label>姓名 <span class="req">*</span></label>
+            <input name="name" placeholder="请输入真实姓名" />
+            <div class="err">请填写姓名</div>
+          </div>
+          <div class="field" id="f-phone">
+            <label>手机号 <span class="req">*</span></label>
+            <input name="phone" inputmode="numeric" maxlength="11" placeholder="用于接收入场凭证" />
+            <div class="err">请填写正确的 11 位手机号</div>
+          </div>
+          <div class="field" id="f-org">
+            <label>单位 / 公司 <span class="req">*</span></label>
+            <input name="org" placeholder="请输入单位名称" />
+            <div class="err">请填写单位</div>
+          </div>
+          <div class="field" id="f-title">
+            <label>职务</label>
+            <input name="title" placeholder="选填" />
+          </div>
         </div>
-        <div class="field" id="f-org">
-          <label>单位 / 公司 <span class="req">*</span></label>
-          <input name="org" placeholder="请输入单位名称" />
-          <div class="err">请填写单位</div>
-        </div>
-        <div class="field" id="f-title">
-          <label>职务</label>
-          <input name="title" placeholder="选填" />
+        <div id="teamBox" style="display:none">
+          <div class="field" id="f-teamName">
+            <label>团队名称 <span class="req">*</span></label>
+            <input name="teamName" placeholder="如：XX 公司代表团" />
+            <div class="err">请填写团队名称</div>
+          </div>
+          <div class="field" id="f-leader">
+            <label>队长姓名 <span class="req">*</span></label>
+            <input name="leader" placeholder="团队联系人" />
+            <div class="err">请填写队长姓名</div>
+          </div>
+          <div class="field" id="f-invoice">
+            <label>发票抬头</label>
+            <input name="invoice" placeholder="选填，团队统一开票" />
+          </div>
+          <div class="field">
+            <label>团队成员 <span class="req">*</span> <span class="more" id="memberCount">0/20</span></label>
+            <div id="memberList"></div>
+            <button type="button" class="btn ghost sm block" id="addMember" style="margin-top:8px">+ 添加成员</button>
+          </div>
         </div>
         <div class="field">
           <label>票种</label>
@@ -206,7 +236,7 @@
           <div style="font-size:46px">✅</div>
           <h3>报名成功！</h3>
           <div class="big" id="regCode">NO. —</div>
-          <p style="color:var(--ink-2)">您的专属座位已生成，可在「座位查询」中查看。<br/>入场凭证已模拟发送，请截图保存。</p>
+          <p id="regDoneMsg" style="color:var(--ink-2)">您的专属座位已生成，可在「座位查询」中查看。<br/>入场凭证已模拟发送，请截图保存。</p>
           <button class="btn block" onclick="closeMask('regMask');openSeat()">查看我的座位</button>
           <button class="btn ghost block" style="margin-top:10px" onclick="closeMask('regMask')">完成</button>
         </div>
@@ -237,9 +267,57 @@
     </div>
   </div>
 
+  <!-- 个人中心弹层 -->
+  <div class="mask" id="meMask">
+    <div class="sheet" style="position:relative">
+      <button class="close" onclick="closeMask('meMask')">×</button>
+      <h3>个人中心</h3>
+      <div class="sub">查询我的报名与专属座位</div>
+      <form id="meForm" novalidate>
+        <div class="field" id="mf-name">
+          <label>姓名 <span class="req">*</span></label>
+          <input name="name" placeholder="请输入姓名" />
+          <div class="err">请填写姓名</div>
+        </div>
+        <div class="field" id="mf-phone">
+          <label>手机号 <span class="req">*</span></label>
+          <input name="phone" inputmode="numeric" maxlength="11" placeholder="请输入手机号" />
+          <div class="err">请填写正确的 11 位手机号</div>
+        </div>
+        <button type="submit" class="btn block">查询</button>
+      </form>
+      <div id="meResult" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- 自定义模块内容弹层（v2.2） -->
+  <div class="mask" id="customMask">
+    <div class="sheet" style="position:relative">
+      <button class="close" onclick="closeMask('customMask')">×</button>
+      <h3 id="customTitle">—</h3>
+      <div class="sub" id="customBody"></div>
+      <div style="text-align:center;margin-top:14px" id="customLink"></div>
+    </div>
+  </div>
+
+  <!-- 邀请函弹层（P0-3） -->
+  <div class="mask" id="inviteMask">
+    <div class="sheet" style="position:relative">
+      <button class="close" onclick="closeMask('inviteMask')">×</button>
+      <h3>我的邀请函</h3>
+      <div class="sub">长按图片保存，或点击下方按钮下载</div>
+      <div style="text-align:center;padding:6px 0 14px">
+        <canvas id="inviteCanvas" style="width:240px;max-width:78%;border-radius:14px;box-shadow:var(--shadow)"></canvas>
+      </div>
+      <button class="btn block" id="inviteDownload">下载邀请函</button>
+      <button class="btn ghost block" style="margin-top:8px" onclick="closeMask('inviteMask')">关闭</button>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script src="assets/js/data.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="assets/js/site.js"></script>
 </body>
 </html>

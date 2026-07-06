@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "theme.light-academic.v1",
+  "title": "轻量学术版微站（智会行 ertong 模板）",
+  "description": "全屏背景图 + 顶部 logo 浮层 + 底部 9 宫格图标菜单的会议微站主题。数据驱动，无构建依赖。",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "description": "会议主标题（hero h1）" },
+    "sub":   { "type": "string", "description": "副标题（时间 / 地点 / 一句话）" },
+    "logo":  { "type": "string", "format": "uri", "description": "顶部 logo 图片地址（建议 600×240，PNG 透明底）" },
+    "bg":    { "type": "string", "format": "uri", "description": "全屏背景大图（建议 1080×1920 JPG）" },
+    "foot":  { "type": "string", "description": "底部版权 / 主办方信息" },
+    "menu":  {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 12,
+      "description": "9 宫格菜单项。3 列布局；超过 9 个会自动换行（4×N）。",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "href"],
+        "properties": {
+          "id":      { "type": "string", "description": "内部唯一 ID（小写英文/数字）" },
+          "label":   { "type": "string", "maxLength": 8, "description": "中文短标签" },
+          "icon":    { "type": "string", "description": "emoji 字符（无 iconUrl 时使用）" },
+          "iconUrl": { "type": "string", "format": "uri", "description": "图标 PNG 路径（40×40，透明底优先）" },
+          "href":    { "type": "string", "description": "跳转 URL 或锚点" },
+          "primary": { "type": "boolean", "description": "是否高亮（蓝底白字）" }
+        }
+      }
+    }
+  },
+  "examples": [{
+    "title": "2026 临床遗传学进展论坛",
+    "sub":   "中国·上海  ·  2026年12月14-15日",
+    "logo":  "https://example.com/logo.png",
+    "bg":    "https://example.com/bg.jpg",
+    "foot":  "© 主办单位：中华医学会",
+    "menu": [
+      { "id": "welcome",  "label": "欢迎辞",   "icon": "👋", "href": "#welcome" },
+      { "id": "org",      "label": "组织架构", "icon": "🏛️", "href": "#org" },
+      { "id": "info",     "label": "会议信息", "icon": "📌", "href": "#info" },
+      { "id": "agenda",   "label": "会议日程", "icon": "📅", "href": "#agenda" },
+      { "id": "reg",      "label": "会议报名", "icon": "✍️", "href": "#reg",   "primary": true },
+      { "id": "speakers", "label": "嘉宾介绍", "icon": "🌟", "href": "#speakers" },
+      { "id": "live",     "label": "会议直播", "icon": "🎥", "href": "#live" },
+      { "id": "hotel",    "label": "预定酒店", "icon": "🏨", "href": "#hotel" },
+      { "id": "contact",  "label": "联系我们", "icon": "☎️", "href": "#contact" }
+    ]
+  }]
+}

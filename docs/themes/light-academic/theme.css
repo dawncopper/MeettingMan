@@ -1,0 +1,156 @@
+/* ============================================================
+ * 轻量学术版微站 · theme.css
+ * ------------------------------------------------------------
+ * 模板来源：智会行 h5.huiyi.com.cn/h5/weizhan/ertong/（儿童/学术型）
+ * 改造点：去除 jQuery / Swiper / iScroll 依赖，改为纯 CSS grid + 极少 JS。
+ * 设计特征：
+ *   1) 全屏 fixed 背景大图（会议主视觉）
+ *   2) 顶部 logo 浮层（pointer-events:none，让位下方链接）
+ *   3) 底部 9 宫格图标菜单（3×3，半透明黑底 + 圆角）
+ *   4) 中部黑色纵向渐变蒙层，提高图标可读性
+ *   5) 移动优先（≤760px 9 个；≥760px 9 个同布局，居中放大）
+ * ============================================================ */
+
+:root {
+  --la-brand: #2f54eb;
+  --la-bg-overlay: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 55%, rgba(0,0,0,.85) 100%);
+  --la-card-bg: rgba(0, 0, 0, .32);
+  --la-card-radius: 10px;
+  --la-icon-size: 44px;
+  --la-title-color: #ffffff;
+  --la-foot-color: rgba(255, 255, 255, .55);
+  --la-maxw: 720px;
+}
+
+/* ---------- 基础重置 ---------- */
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  color: var(--la-title-color);
+  background: #0a0e1c;
+  min-height: 100vh;  /* 保留，作为背景色兜底 */
+  overflow-x: hidden;
+  /* v2.10.7：让 body 高度按内容撑开（多行 grid 不被切） */
+  height: auto;
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+ul, ol { list-style: none; margin: 0; padding: 0; }
+button { font-family: inherit; }
+
+/* ---------- 全屏背景图（fixed） ---------- */
+.la-bg {
+  position: fixed; inset: 0; z-index: 0;
+  background-size: cover; background-position: center center; background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* ---------- 顶部 logo 浮层（v2.10.8：紧凑，紧贴九宫格） ---------- */
+.la-top {
+  position: relative; z-index: 1;
+  text-align: center; padding: 4vh 16px 0;
+  pointer-events: none; /* 让位下方链接 */
+}
+.la-top img {
+  width: 50%; max-width: 280px; margin: 0 auto 10px;
+  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, .45));
+}
+.la-top h1 {
+  font-size: 20px; font-weight: 800; margin: 0 0 4px; line-height: 1.3;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, .55);
+}
+.la-top p {
+  font-size: 13px; margin: 0; color: rgba(255, 255, 255, .82);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .55);
+}
+
+/* ---------- 黑色蒙层（让底部图标可读） ---------- */
+.la-mask {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1;
+  height: 50vh;          /* v2.10.9：65vh → 50vh，蒙层不要太高遮 5 行 grid */
+  background: var(--la-bg-overlay);
+  pointer-events: none;
+}
+
+/* ---------- 9 宫格图标菜单（v2.10.13：恢复大 cell + > 9 自然换行） ---------- */
+.la-grid {
+  position: relative; z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-width: 360px;
+  margin: 16px auto 0;
+  padding: 0 12px 16px;
+  /* v2.10.13：13 个时容器不变小，cell 保持 ~107px 大小；多出的行 body 撑开可向下滚动 */
+}
+/* v2.10.13：删 cols-4/5 容器缩小（用户反馈要恢复大 cell 效果） */
+
+.la-grid a, .la-grid .empty-slot {
+  /* v2.10.7：正方形（aspect-ratio:1/1） */
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  padding: 6px;
+  background: var(--la-card-bg);
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: var(--la-card-radius);
+  color: var(--la-title-color);
+  text-align: center;
+  transition: transform .12s ease, background-color .12s ease;
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.la-grid a:active { transform: scale(.96); background: rgba(255, 255, 255, .12); }
+/* v2.10.12：cols-4/5 不再缩小 icon/文字（用户反馈），icon 保留 38px */
+/* 13 个时 5 行总高 5×~78 + 顶部 100 = 490px，screen > 490px 的直接可见，< 的可向下滚动 */
+/* v2.10.7：空占位（不足 9 个 enabled 模块时补齐） */
+.la-grid .empty-slot {
+  background: rgba(255, 255, 255, .04);
+  border: 1px dashed rgba(255, 255, 255, .15);
+  pointer-events: none;
+}
+.la-grid .ico {
+  width: var(--la-icon-size); height: var(--la-icon-size);
+  display: grid; place-items: center;
+  font-size: 24px;
+  background: rgba(255, 255, 255, .92);
+  color: var(--la-brand);
+  border-radius: 50%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+}
+.la-grid .ico img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.la-grid .title {
+  font-size: 13px; font-weight: 700; line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ---------- 底部 ---------- */
+.la-foot {
+  position: relative; z-index: 2;
+  text-align: center; font-size: 11px; color: var(--la-foot-color);
+  padding: 6px 12px calc(8px + env(safe-area-inset-bottom));
+}
+
+/* ---------- 桌面适配（保持同布局，居中放大） ---------- */
+@media (min-width: 760px) {
+  .la-top { padding-top: 6vh; }
+  .la-top h1 { font-size: 28px; }
+  .la-top p { font-size: 15px; }
+  .la-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; padding: 0 24px 24px; margin-top: 32px; }
+  .la-grid .ico { width: 56px; height: 56px; font-size: 28px; }
+  .la-grid .title { font-size: 14px; }
+  .la-mask { height: 70vh; }
+}
+@media (min-width: 1024px) {
+  .la-top img { width: 40%; }
+  .la-grid { max-width: 640px; }
+}
+
+/* ---------- 大屏一屏装不下 9 个时启用滚动 ---------- */
+@media (max-height: 640px) {
+  .la-grid { margin-top: 24vh; }
+  .la-mask { height: 80vh; }
+}

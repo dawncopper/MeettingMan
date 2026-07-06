@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>会议微站</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="docs/themes/light-academic/theme.css" />
+</head>
+<body class="theme-la">
+
+  <!-- ========== 一级页：深蓝全屏 + 顶部 logo/标题/时间 + 9 宫格 ========== -->
+
+  <!-- 全屏背景图（fixed，会议主视觉） -->
+  <div class="la-bg" id="laBg"></div>
+
+  <!-- 顶部 logo 浮层（绝对定位 top:10%，无 pointer-events） -->
+  <div class="la-top">
+    <img id="laLogo" alt="logo" />
+    <h1 id="laTitle">会议</h1>
+    <p id="laSub">Conference</p>
+  </div>
+
+  <!-- 黑色蒙层（让底部图标可读） -->
+  <div class="la-mask"></div>
+
+  <!-- 底部 9 宫格菜单（数据驱动） -->
+  <nav class="la-grid" id="laGrid" aria-label="会议导航"></nav>
+
+  <!-- 底部备案 / 主办方 -->
+  <footer class="la-foot" id="laFoot">© 会议信息管理系统</footer>
+
+  <!-- ========== 二级页：点击 9 宫格后显示，全屏覆盖 + 返回 ========== -->
+  <div class="la-page2" id="laPage2" hidden>
+    <div class="la-p2-bar">
+      <button class="la-back" id="laBack" type="button">← 返回</button>
+      <span class="la-p2-title" id="laP2Title">详情</span>
+    </div>
+    <div class="la-p2-body" id="laP2Body"></div>
+  </div>
+
+  <!-- ========== 弹层：会议报名 / 座位查询 / 我的参会 / 邀请函 / 自定义模块 ========== -->
+  <!-- 会议报名弹层（v2.4 团队报名） -->
+  <div class="mask" id="regMask">
+    <div class="sheet" style="position:relative;max-width:560px">
+      <button class="close" onclick="closeLaMask('regMask')">×</button>
+      <h3>会议报名</h3>
+      <div class="seg" id="regMode">
+        <input type="radio" name="regMode" id="regModeSingle" value="single" checked /><label for="regModeSingle">个人报名</label>
+        <input type="radio" name="regMode" id="regModeTeam" value="team" /><label for="regModeTeam">团队报名</label>
+      </div>
+
+      <!-- 个人表单 -->
+      <form id="regForm">
+        <div class="field"><label>姓名 <span class="req">*</span></label><input name="name" /></div>
+        <div class="field"><label>手机 <span class="req">*</span></label><input name="phone" type="tel" /></div>
+        <div class="field"><label>单位</label><input name="org" /></div>
+        <div class="field"><label>职务</label><input name="title" /></div>
+        <div class="field"><label>票种</label>
+          <select name="ticket">
+            <option value="standard">普通票</option>
+            <option value="vip">VIP 票</option>
+            <option value="student">学生票</option>
+          </select>
+        </div>
+        <div class="field"><label>住宿</label>
+          <select name="hotel">
+            <option value="">不需要</option>
+            <option value="conf-hotel">会议酒店</option>
+            <option value="nearby">周边酒店</option>
+          </select>
+        </div>
+        <div class="field"><label>备注</label><textarea name="remark" rows="2"></textarea></div>
+        <button type="submit" class="btn block">提交报名</button>
+      </form>
+
+      <!-- 团队表单（成员动态添加） -->
+      <form id="teamForm" style="display:none">
+        <h4 style="margin:14px 0 8px">团队信息</h4>
+        <div class="field"><label>团队名称 <span class="req">*</span></label><input name="teamName" /></div>
+        <div class="field"><label>联系人 <span class="req">*</span></label><input name="contactName" /></div>
+        <div class="field"><label>联系电话 <span class="req">*</span></label><input name="contactPhone" type="tel" /></div>
+        <h4 style="margin:14px 0 8px">团队成员 <button type="button" class="btn ghost sm" id="addMemberBtn">+ 添加成员</button></h4>
+        <div id="memberList"></div>
+        <button type="submit" class="btn block" style="margin-top:14px">提交团队报名</button>
+      </form>
+
+      <!-- 报名成功 -->
+      <div id="regDone" style="display:none;text-align:center;padding:24px 0">
+        <div style="font-size:48px">✅</div>
+        <h3 style="margin:8px 0 4px">报名成功</h3>
+        <p class="note" id="regDoneMsg">我们已收到您的报名</p>
+        <button class="btn ghost" onclick="closeLaMask('regMask')" style="margin-top:14px">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 座位查询弹层 -->
+  <div class="mask" id="seatMask">
+    <div class="sheet" style="position:relative;max-width:480px">
+      <button class="close" onclick="closeLaMask('seatMask')">×</button>
+      <h3>座位查询</h3>
+      <p class="note" style="margin-top:0">输入姓名+手机查询您的专属座位</p>
+      <div class="field"><label>姓名</label><input id="seatName" /></div>
+      <div class="field"><label>手机</label><input id="seatPhone" type="tel" /></div>
+      <button class="btn block" id="seatQueryBtn">查询</button>
+      <div id="seatResult" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <!-- 我的参会弹层 -->
+  <div class="mask" id="meMask">
+    <div class="sheet" style="position:relative;max-width:520px">
+      <button class="close" onclick="closeLaMask('meMask')">×</button>
+      <h3>我的参会</h3>
+      <p class="note" style="margin-top:0">查看您的报名信息、座位、邀请函</p>
+      <div class="field"><label>姓名</label><input id="meName" /></div>
+      <div class="field"><label>手机</label><input id="mePhone" type="tel" /></div>
+      <button class="btn block" id="meQueryBtn">查询</button>
+      <div id="meResult" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <!-- 邀请函弹层 -->
+  <div class="mask" id="inviteMask">
+    <div class="sheet" style="position:relative;max-width:520px">
+      <button class="close" onclick="closeLaMask('inviteMask')">×</button>
+      <h3>我的邀请函</h3>
+      <div id="inviteCanvasWrap" style="text-align:center"></div>
+      <button class="btn ghost block" id="inviteSaveBtn" style="margin-top:12px">保存为图片</button>
+    </div>
+  </div>
+
+  <!-- 自定义模块弹层 -->
+  <div class="mask" id="customMask">
+    <div class="sheet" style="position:relative;max-width:480px">
+      <button class="close" onclick="closeLaMask('customMask')">×</button>
+      <h3 id="customTitle">详情</h3>
+      <div id="customBody" style="line-height:1.7"></div>
+      <div id="customLink" style="margin-top:14px;text-align:center"></div>
+    </div>
+  </div>
+
+  <!-- Toast 提示 -->
+  <div class="toast" id="toast"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="docs/themes/light-academic/theme.js"></script>
+  <script>
+    /* ============================================================
+     * 轻量学术版微站（index-la.html）· v2.7
+     * 依赖：data.js（ConfStore）+ theme.js（LATheme）
+     * 流程：init → getTheme → getModules → mount 9 宫格 → 拦截 click 路由
+     * ============================================================ */
+    (async function () {
+      'use strict';
+      var S = window.ConfStore;
+      await S.init();
+
+      /* v2.5：?m=slug 路由 */
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var slug = params.get('m');
+        if (slug) {
+          var list = await S.listMeetings();
+          var hit = list.filter(function (m) { return m.slug === slug; })[0];
+          if (hit) { await S.setCurrentMeeting(hit.id); }
+        }
+      } catch (e) {}
+
+      var meta = await S.getMeta();
+      var speakers = await S.getSpeakers();
+      var agenda = await S.getAgenda();
+      var materials = await S.getMaterials();
+      // v2.10.6：所有 enabled 都渲染（取消 9 上限）；不足时 9 宫格空占位补齐
+      var modules = await S.listModules({ enabledOnly: true });
+      // 实际模块数（用于 9 宫格内联布局：超过 9 个会自然换行到下一行）
+      var realModuleCount = modules.length;
+      var themeKey = await S.getTheme();
+      var themeInfo = await S.getThemeInfo(themeKey);
+
+      // 改 :root 色系
+      if (themeInfo) {
+        if (themeInfo.brand)  document.documentElement.style.setProperty('--brand', themeInfo.brand);
+        if (themeInfo.brand2) document.documentElement.style.setProperty('--brand-2', themeInfo.brand2);
+      }
+
+      // 顶部 + 背景应用
+      var dateStr = formatDateRange(meta.date, meta.endDate);
+      var subText = [dateStr, meta.city].filter(Boolean).join('  ｜  ');
+      LATheme.applyMeta({
+        title: meta.title,
+        sub:   subText,
+        logo:  meta.logo || '',
+        bg:    meta.bgImage || '',
+        foot:  (meta.shortTitle || meta.title || '会议信息管理系统')
+      });
+
+      // 9 宫格：v2.10.6 所有 enabled 都渲染
+      var menu = (modules || []).map(function (m) {
+        return { id: m.id, label: m.label, icon: m.icon || '•', iconUrl: m.iconUrl || '', href: m.href || '#',
+                 primary: !!m.primary, type: m.type, config: m.config };
+      });
+      // v2.10.6：不足 9 个时，空占位补到 9（保持首屏 3x3 视觉）
+      if (menu.length < 9) {
+        for (var i = menu.length; i < 9; i++) {
+          menu.push({ id: '__empty_' + i, empty: true });
+        }
+      }
+      LATheme.render({ menu: menu });
+
+      // v2.10.13：删 cols-4/5 切换（恢复 v2.10.8 大 cell 风格；13 个时 body 撑高可滚动）
+
+      /* v2.10.8 调试 */
+      try {
+        var _grid = document.getElementById('laGrid');
+        var _all = _grid ? _grid.querySelectorAll('a') : [];
+        var _empty = _grid ? _grid.querySelectorAll('.empty-slot') : [];
+        var _foot = document.getElementById('laFoot');
+        if (_foot) {
+          var _diag = document.createElement('div');
+          _diag.style.cssText = 'font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;opacity:.6';
+          _diag.textContent = '[debug] enabled=' + _all.length + ' | empty=' + _empty.length + ' | theme.js ver=v2.10.13';
+          _foot.appendChild(_diag);
+        }
+      } catch (e) { console.error('[LA-debug] error', e); }
+
+      /* ========== 路由分发 ========== */
+      var grid = document.getElementById('laGrid');
+      var page2 = document.getElementById('laPage2');
+      var p2Body = document.getElementById('laP2Body');
+      var p2Title = document.getElementById('laP2Title');
+      var back = document.getElementById('laBack');
+
+      grid.addEventListener('click', function (e) {
+        var a = e.target.closest('a[data-id]');
+        if (!a) return;
+        e.preventDefault();
+        // v2.10.2：已关闭模块不响应（视觉已在 theme.js 灰显 + 不可点）
+        if (a.classList.contains('off') || a.getAttribute('aria-disabled') === 'true') {
+          toast('该模块已关闭');
+          return;
+        }
+        var id = a.getAttribute('data-id');
+        routeToModule(id);
+      });
+      back.addEventListener('click', function () { page2.hidden = true; window.scrollTo(0, 0); });
+
+      /* 日期格式化：'2024-12-14' + '2024-12-15' → '12月14-15日'
+       * 跨月：'2024-11-30' + '2024-12-02' → '11月30-12月02日'
+       * 跨年：'2023-12-30' + '2024-01-02' → '12月30-1月2日'（简化） */
+      function formatDateRange(a, b) {
+        if (!a) return '';
+        function m(d) { return (d.split('-')[1] || '').replace(/^0/, ''); }
+        function day(d) { return (d.split('-')[2] || '').replace(/^0/, ''); }
+        var am = m(a), ad = day(a);
+        if (!b || a === b) return am + '月' + ad + '日';
+        var bm = m(b), bd = day(b);
+        if (am === bm) return am + '月' + ad + '-' + bd + '日';
+        return am + '月' + ad + '-' + bm + '月' + bd + '日';
+      }
+      function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
+      function showLaPage2(title, html) {
+        p2Title.textContent = title;
+        p2Body.innerHTML = html;
+        page2.hidden = false;
+        window.scrollTo(0, 0);
+      }
+      function routeToModule(id) {
+        var mod = (modules || []).map(function (m) { return m; }).filter(function (m) { return m.id === id; })[0];
+        if (!mod) return;
+        // 自定义模块 → 弹层
+        if (mod.type === 'custom') { openCustomModule(id); return; }
+        // 函数类（reg/seat/me/invite）→ 弹层
+        var fn = { reg: 'openReg', seat: 'openSeat', me: 'openMe', invite: 'openInvite' }[id];
+        if (fn && typeof window[fn] === 'function') { window[fn](); return; }
+        // 8 个二级页 render（v2.10.2：加 materials）
+        var handler = {
+          welcome:  renderWelcomePage,
+          org:      renderOrgPage,
+          info:     renderInfoPage,
+          agenda:   renderAgendaPage,
+          speakers: renderSpeakersPage,
+          live:     renderLivePage,
+          hotel:    renderHotelPage,
+          contact:  renderContactPage,
+          materials:renderMaterialsPage
+        }[id];
+        if (handler) handler();
+      }
+
+      /* ========== 8 个二级页内容渲染 ========== */
+      function renderWelcomePage() {
+        var about = meta.about || '暂无介绍';
+        var tagHtml = (meta.highlights || []).map(function (t) { return '<span class="p2-tag">' + esc(t) + '</span>'; }).join('');
+        showLaPage2('欢迎辞',
+          '<div class="p2-section">' +
+            '<div class="p2-hero"><h3>' + esc(meta.theme || '') + '</h3><p class="p2-slogan">' + esc(meta.slogan || '') + '</p></div>' +
+            '<div class="p2-block"><h4>关于大会</h4><p class="p2-text">' + esc(about) + '</p>' +
+              (tagHtml ? '<div class="p2-tags">' + tagHtml + '</div>' : '') +
+            '</div>' +
+          '</div>');
+      }
+      function renderOrgPage() {
+        var orgs = meta.organizers || [];
+        var list = orgs.length ? orgs : ['暂无组织信息'];
+        showLaPage2('组织架构',
+          '<div class="p2-section">' +
+            '<h3>组织单位</h3>' +
+            '<ul class="p2-org-list">' + list.map(function (o) { return '<li class="p2-org-item">' + esc(o) + '</li>'; }).join('') + '</ul>' +
+          '</div>');
+      }
+      function renderInfoPage() {
+        var m = meta;
+        var rows = [
+          ['会议名称', m.title],
+          ['英文名称', m.enTitle],
+          ['会期', formatDateRange(m.date, m.endDate)],
+          ['城市', m.city],
+          ['场馆', m.venue],
+          ['详细地址', m.address],
+          ['主题', m.theme],
+          ['联系电话', m.contact && m.contact.phone],
+          ['邮箱', m.contact && m.contact.email],
+          ['微信公众号', m.contact && m.contact.wechat]
+        ].filter(function (r) { return r[1]; });
+        showLaPage2('会议信息',
+          '<div class="p2-section">' +
+            '<table class="p2-info-table">' +
+              rows.map(function (r) { return '<tr><th>' + esc(r[0]) + '</th><td>' + esc(r[1]) + '</td></tr>'; }).join('') +
+            '</table>' +
+          '</div>');
+      }
+      function renderAgendaPage() {
+        if (!agenda || !agenda.length) { showLaPage2('会议日程', '<p class="p2-empty">暂无议程</p>'); return; }
+        showLaPage2('会议日程',
+          '<div class="p2-section">' +
+            agenda.map(function (day) {
+              var sessions = (day.sessions || []).map(function (s) {
+                return '<div class="p2-sess">' +
+                  '<div class="p2-sess-time">' + esc(s.time || '') + '</div>' +
+                  '<div class="p2-sess-body">' +
+                    '<div class="p2-sess-title">' + esc(s.title || '') + '</div>' +
+                    '<div class="p2-sess-spk">' + esc(s.speaker || '') + '</div>' +
+                  '</div></div>';
+              }).join('');
+              return '<div class="p2-day"><h3 class="p2-day-h">' + esc(day.day || '') + '</h3>' +
+                (day.date ? '<div class="p2-day-d">' + esc(day.date) + '</div>' : '') +
+                '<div class="p2-day-sessions">' + sessions + '</div></div>';
+            }).join('') +
+          '</div>');
+      }
+      function renderSpeakersPage() {
+        if (!speakers || !speakers.length) { showLaPage2('嘉宾介绍', '<p class="p2-empty">暂无嘉宾</p>'); return; }
+        showLaPage2('嘉宾介绍',
+          '<div class="p2-section">' +
+            '<div class="p2-speakers">' + speakers.map(function (sp) {
+              return '<div class="p2-spk">' +
+                '<div class="p2-spk-ava" style="background:' + esc(sp.color || '#2f54eb') + '">' + esc(sp.avatar || (sp.name || '?').slice(0, 1)) + '</div>' +
+                '<div class="p2-spk-name">' + esc(sp.name) + '</div>' +
+                '<div class="p2-spk-title">' + esc(sp.title || '') + '</div>' +
+                '<div class="p2-spk-org">' + esc(sp.org || '') + '</div>' +
+                (sp.topic ? '<div class="p2-spk-topic">『' + esc(sp.topic) + '』</div>' : '') +
+              '</div>';
+            }).join('') + '</div>' +
+          '</div>');
+      }
+      function renderLivePage() {
+        var m = meta;
+        var liveUrl = m.liveUrl || '';
+        var isOn = m.liveState === '直播中';
+        showLaPage2('会议直播',
+          '<div class="p2-section">' +
+            '<div class="p2-live ' + (isOn ? 'on' : 'off') + '">' +
+              '<div class="p2-live-state">' + (isOn ? '● 直播中' : '○ 即将开启') + '</div>' +
+              '<h3 class="p2-live-title">' + esc(m.liveTitle || '大会主论坛直播') + '</h3>' +
+              (liveUrl
+                ? '<a class="p2-live-btn" href="' + esc(liveUrl) + '" target="_blank" rel="noopener">进入直播间 →</a>'
+                : '<p class="p2-live-empty">直播链接待公布，请关注会议通知</p>') +
+            '</div>' +
+            (m.about ? '<div class="p2-block"><h4>关于本次大会</h4><p class="p2-text">' + esc(m.about) + '</p></div>' : '') +
+          '</div>');
+      }
+      function renderHotelPage() {
+        showLaPage2('预定酒店',
+          '<div class="p2-section">' +
+            '<h3>会议酒店</h3>' +
+            '<div class="p2-hotel-card">' +
+              '<div class="p2-hotel-name">' + esc(meta.venue || '会议酒店') + '</div>' +
+              '<div class="p2-hotel-addr">' + esc(meta.address || '') + '</div>' +
+              '<div class="p2-hotel-tip">请在报名时选择「会议酒店」选项，会务组将统一协调房间。</div>' +
+            '</div>' +
+            '<p class="p2-empty">更多周边酒店推荐待接入，可联系会务组咨询</p>' +
+          '</div>');
+      }
+      function renderContactPage() {
+        var c = meta.contact || {};
+        var rows = [
+          ['📞 联系电话', c.phone],
+          ['📧 联系邮箱', c.email],
+          ['💬 微信公众号', c.wechat]
+        ].filter(function (r) { return r[1]; });
+        showLaPage2('联系我们',
+          '<div class="p2-section">' +
+            '<h3>会务联系方式</h3>' +
+            '<ul class="p2-contact-list">' +
+              rows.map(function (r) {
+                var v = esc(r[1]);
+                var isPhone = /电话/.test(r[0]);
+                var isEmail = /邮箱/.test(r[0]);
+                var display = v;
+                if (isPhone) display = '<a href="tel:' + v + '">' + v + '</a>';
+                else if (isEmail) display = '<a href="mailto:' + v + '">' + v + '</a>';
+                return '<li class="p2-contact-row"><span class="p2-contact-lab">' + esc(r[0]) + '</span><span class="p2-contact-val">' + display + '</span></li>';
+              }).join('') +
+            '</ul>' +
+            (meta.address ? '<div class="p2-block"><h4>会议地址</h4><p class="p2-text">' + esc(meta.address) + '</p></div>' : '') +
+          '</div>');
+      }
+      function renderMaterialsPage() {
+        if (!materials || !materials.length) {
+          showLaPage2('会议资料', '<p class="p2-empty">暂无资料</p>');
+          return;
+        }
+        var items = materials.map(function (mat) {
+          var name = esc(mat.name || '资料');
+          var size = mat.size ? ' <span class="p2-mat-size">(' + esc(mat.size) + ')</span>' : '';
+          var url  = mat.url || '#';
+          return '<li class="p2-mat-row">' +
+            '<span class="p2-mat-icon">📄</span>' +
+            '<div class="p2-mat-meta"><b>' + name + '</b>' + size + '</div>' +
+            '<a class="p2-mat-dl" href="' + esc(url) + '" target="_blank" rel="noopener" download>下载</a>' +
+          '</li>';
+        }).join('');
+        showLaPage2('会议资料',
+          '<div class="p2-section">' +
+            '<h3>会议资料</h3>' +
+            '<ul class="p2-mat-list">' + items + '</ul>' +
+            '<p class="p2-tip">资料由会务组统一提供；如需特定文件请联系会务。</p>' +
+          '</div>');
+      }
+
+      /* ========== 报名 / 座位 / 我的参会 / 邀请函 / 自定义模块 ========== */
+      function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function () { t.classList.remove('show'); }, 1800); }
+      function $(id) { return document.getElementById(id); }
+      function closeLaMask(id) { $(id).classList.remove('show'); }
+      function showLaMask(id) { $(id).classList.add('show'); }
+
+      // 弹层点击空白关闭
+      ['regMask', 'seatMask', 'meMask', 'inviteMask', 'customMask'].forEach(function (id) {
+        $(id).addEventListener('click', function (e) { if (e.target === this) this.classList.remove('show'); });
+      });
+
+      // === 个人/团队模式切换 ===
+      var regForm = $('regForm');
+      var teamForm = $('teamForm');
+      var memberList = $('memberList');
+      $('regMode').addEventListener('change', function (e) {
+        var mode = e.target.value;
+        regForm.style.display = mode === 'single' ? '' : 'none';
+        teamForm.style.display = mode === 'team' ? '' : 'none';
+      });
+      // 团队成员
+      $('addMemberBtn').addEventListener('click', function () {
+        var i = memberList.children.length;
+        var row = document.createElement('div');
+        row.className = 'kv';
+        row.style.gridTemplateColumns = '1fr 1fr';
+        row.innerHTML =
+          '<div class="field"><label>姓名</label><input name="m_name" /></div>' +
+          '<div class="field"><label>手机</label><input name="m_phone" type="tel" /></div>';
+        memberList.appendChild(row);
+      });
+
+      // 报名提交（个人）
+      regForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var f = e.target;
+        var reg = {
+          name: f.elements['name'].value.trim(),
+          phone: f.elements['phone'].value.trim(),
+          org: f.elements['org'].value.trim(),
+          title: f.elements['title'].value.trim(),
+          ticket: f.elements['ticket'].value,
+          hotel: f.elements['hotel'].value,
+          remark: f.elements['remark'].value.trim()
+        };
+        if (!reg.name || !reg.phone) { toast('请填写姓名和手机'); return; }
+        await S.addReg(reg);
+        await S.findSeat(reg.name, reg.phone);
+        S.track('reg');
+        regForm.style.display = 'none';
+        $('regDone').style.display = '';
+        $('regDoneMsg').textContent = '我们已收到您的报名，已自动为您分配座位';
+      });
+      // 团队提交
+      teamForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var f = e.target;
+        var teamName = f.elements['teamName'].value.trim();
+        var contactName = f.elements['contactName'].value.trim();
+        var contactPhone = f.elements['contactPhone'].value.trim();
+        if (!teamName || !contactName || !contactPhone) { toast('请填写团队信息'); return; }
+        var teamId = 'team_' + Date.now().toString(36);
+        var regs = [];
+        var rows = memberList.querySelectorAll('.kv');
+        rows.forEach(function (r) {
+          var n = r.querySelector('input[name=m_name]').value.trim();
+          var p = r.querySelector('input[name=m_phone]').value.trim();
+          if (n && p) regs.push({ name: n, phone: p, teamId: teamId, teamName: teamName, isContact: false });
+        });
+        // 联系人作为第一个成员
+        regs.unshift({ name: contactName, phone: contactPhone, teamId: teamId, teamName: teamName, isContact: true });
+        if (regs.length === 1) { toast('请至少添加 1 个团队成员'); return; }
+        await S.addTeamRegs(regs);
+        for (var i = 0; i < regs.length; i++) { await S.findSeat(regs[i].name, regs[i].phone); }
+        S.track('reg');
+        teamForm.style.display = 'none';
+        $('regDone').style.display = '';
+        $('regDoneMsg').textContent = '团队 ' + teamName + ' 报名成功，共 ' + regs.length + ' 人';
+      });
+
+      // 打开报名
+      window.openReg = function () {
+        regForm.reset(); teamForm.reset(); memberList.innerHTML = '';
+        regForm.style.display = ''; teamForm.style.display = 'none';
+        $('regDone').style.display = 'none';
+        document.querySelector('input[name=regMode][value=single]').checked = true;
+        showLaMask('regMask');
+      };
+
+      // 座位查询
+      window.openSeat = function () { $('seatName').value = ''; $('seatPhone').value = ''; $('seatResult').innerHTML = ''; showLaMask('seatMask'); };
+      $('seatQueryBtn').addEventListener('click', async function () {
+        var n = $('seatName').value.trim(), p = $('seatPhone').value.trim();
+        if (!n || !p) { toast('请填写姓名和手机'); return; }
+        var seat = await S.findSeat(n, p);
+        S.track('seat');
+        if (!seat) { $('seatResult').innerHTML = '<p class="note">未查询到座位，请先完成报名</p>'; return; }
+        $('seatResult').innerHTML =
+          '<div class="panel"><b>您的座位</b><div style="font-size:28px;font-weight:800;color:var(--brand);margin:8px 0">' + (seat.seatNo || '-') + '</div><p class="note">区域：' + (seat.zoneName || seat.zone) + '</p></div>';
+      });
+
+      // 我的参会
+      window.openMe = function () { $('meName').value = ''; $('mePhone').value = ''; $('meResult').innerHTML = ''; showLaMask('meMask'); };
+      $('meQueryBtn').addEventListener('click', async function () {
+        var n = $('meName').value.trim(), p = $('mePhone').value.trim();
+        if (!n || !p) { toast('请填写姓名和手机'); return; }
+        myLastQuery = { name: n, phone: p };  // 记住"我"（v2.10.2 邀请函 fallback 用）
+        var reg = await S.getMyReg(n, p);
+        var seat = await S.findSeat(n, p);
+        if (!reg) { $('meResult').innerHTML = '<p class="note">未找到您的报名记录</p>'; return; }
+        var teamHtml = '';
+        if (reg.teamId) {
+          var mates = await S.getRegsByTeam(reg.teamId);
+          teamHtml = '<h4>团队成员</h4><ul style="list-style:none;padding:0">' + mates.map(function (m) { return '<li style="padding:6px 0;border-bottom:1px dashed #eee">' + m.name + ' · ' + m.phone + (m.isContact ? ' (联系人)' : '') + '</li>'; }).join('') + '</ul>';
+        }
+        $('meResult').innerHTML =
+          '<div class="panel"><b>' + reg.name + '</b><p class="note">' + (reg.org || '') + ' · ' + (reg.title || '') + '</p>' +
+          '<p>票种：' + (reg.ticket || '-') + '　住宿：' + (reg.hotel || '-') + '</p>' +
+          (seat ? '<p>座位：<b style="color:var(--brand)">' + seat.seatNo + '</b>（' + (seat.zoneName || seat.zone) + '）</p>' : '') +
+          '<div style="margin-top:10px"><button class="btn sm" id="genInviteBtn">生成邀请函</button></div>' +
+          '</div>' + teamHtml;
+        var gb = $('genInviteBtn');
+        if (gb) gb.addEventListener('click', function () { genInvite(n, p); });
+      });
+
+      // 邀请函（v2.10.2：抽成全局 openInvite，可独立从九宫格进入）
+      // 用 myLastQuery 记住最近一次"我"的姓名手机；从 meMask 进入时直接复用
+      var myLastQuery = null;  // {name, phone}
+      function openInvite(name, phone) {
+        var useName = (name || (myLastQuery && myLastQuery.name) || '').trim();
+        var usePhone = (phone || (myLastQuery && myLastQuery.phone) || '').trim();
+        if (!useName) {
+          // 还没报名过，弹输入框
+          useName = prompt('请输入您的姓名（用于邀请函）', '');
+          if (!useName || !useName.trim()) return;
+        }
+        genInvite(useName.trim(), usePhone);
+      }
+      window.openInvite = openInvite;
+
+      function genInvite(name, phone) {
+        showLaMask('inviteMask');
+        var wrap = $('inviteCanvasWrap');
+        wrap.innerHTML = '<canvas id="inviteCanvas" width="720" height="1080" style="max-width:100%;border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.15)"></canvas>';
+        var c = document.getElementById('inviteCanvas');
+        var ctx = c.getContext('2d');
+        // 背景渐变
+        var g = ctx.createLinearGradient(0, 0, 0, 1080);
+        g.addColorStop(0, '#1d2b6b'); g.addColorStop(1, '#2f54eb');
+        ctx.fillStyle = g; ctx.fillRect(0, 0, 720, 1080);
+        // 装饰圆
+        ctx.fillStyle = 'rgba(255,255,255,.06)';
+        ctx.beginPath(); ctx.arc(120, 200, 100, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(600, 800, 140, 0, Math.PI*2); ctx.fill();
+        // 标题
+        ctx.fillStyle = '#fff'; ctx.textAlign = 'center';
+        ctx.font = 'bold 38px "PingFang SC",sans-serif'; ctx.fillText('邀请函', 360, 180);
+        ctx.font = '500 18px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.85)';
+        ctx.fillText('INVITATION', 360, 210);
+        // 会议标题
+        ctx.font = 'bold 28px "PingFang SC",sans-serif'; ctx.fillStyle = '#fff';
+        var title = meta.title || '会议';
+        ctx.fillText(title, 360, 460);
+        // 受邀人
+        ctx.font = '500 18px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.85)';
+        ctx.fillText('尊敬的  ' + name + '  先生/女士', 360, 600);
+        // 时间地点
+        ctx.font = '500 20px "PingFang SC",sans-serif'; ctx.fillStyle = '#fff';
+        ctx.fillText((meta.date || '') + '  ·  ' + (meta.city || ''), 360, 680);
+        ctx.fillText(meta.venue || '', 360, 720);
+        // 底部
+        ctx.font = '400 14px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.7)';
+        ctx.fillText('会议信息管理系统', 360, 980);
+        ctx.fillText(new Date().toISOString().slice(0, 10), 360, 1010);
+        S.track('invite');
+      }
+      $('inviteSaveBtn').addEventListener('click', function () {
+        var c = document.getElementById('inviteCanvas');
+        if (!c) return;
+        var a = document.createElement('a'); a.download = '邀请函.png';
+        a.href = c.toDataURL('image/png'); a.click();
+        toast('已保存邀请函');
+      });
+
+      // 自定义模块
+      window.openCustomModule = function (id) {
+        var mod = (modules || []).filter(function (m) { return m.id === id; })[0];
+        if (!mod) { toast('模块已不存在'); return; }
+        var cfg = mod.config || {};
+        $('customTitle').textContent = cfg.title || mod.label;
+        $('customBody').textContent = cfg.body || (mod.desc || '');
+        var linkBox = $('customLink');
+        if (cfg.link) {
+          linkBox.innerHTML = '<a class="btn" href="' + cfg.link + '" target="_blank" rel="noopener">' + (cfg.linkText || '了解更多') + '</a>';
+        } else { linkBox.innerHTML = ''; }
+        showLaMask('customMask');
+      };
+    })();
+  </script>
+</body>
+</html>

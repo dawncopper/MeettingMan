@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "theme.default.v1",
+  "title": "默认版微站（科技蓝 hero + 倒计时）",
+  "description": "项目原生 v1 主题：科技蓝大 hero 横幅 + 倒计时 + 6 大数据概览 + 模块化卡片布局 + 移动底部 Tab / 桌面顶部 sticky 导航。数据驱动，无构建依赖。",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "title":     { "type": "string", "description": "会议主标题（hero h1）" },
+    "enTitle":   { "type": "string", "description": "英文标题" },
+    "theme":     { "type": "string", "description": "会议主题 / 副标题" },
+    "date":      { "type": "string", "format": "date", "description": "开始日期 YYYY-MM-DD" },
+    "endDate":   { "type": "string", "format": "date", "description": "结束日期 YYYY-MM-DD" },
+    "city":      { "type": "string" },
+    "venue":     { "type": "string" },
+    "address":   { "type": "string" },
+    "about":     { "type": "string", "description": "大会介绍正文" },
+    "highlights": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "亮点标签（圆角 pill）"
+    },
+    "contact": {
+      "type": "object",
+      "properties": {
+        "phone":  { "type": "string" },
+        "email":  { "type": "string" },
+        "wechat": { "type": "string" }
+      }
+    },
+    "speakers": {
+      "type": "array",
+      "description": "嘉宾列表（2~N）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id":     { "type": "string" },
+          "name":   { "type": "string" },
+          "title":  { "type": "string" },
+          "org":    { "type": "string" },
+          "topic":  { "type": "string" },
+          "avatar": { "type": "string" },
+          "color":  { "type": "string" }
+        }
+      }
+    },
+    "agenda": {
+      "type": "array",
+      "description": "议程（按天）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day":  { "type": "string" },
+          "date": { "type": "string" },
+          "sessions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "time":    { "type": "string" },
+                "title":   { "type": "string" },
+                "speaker": { "type": "string" },
+                "type":    { "enum": ["ceremony", "keynote", "roundtable", "forum", "release", "match"] }
+              }
+            }
+          }
+        }
+      }
+    },
+    "materials": {
+      "type": "array",
+      "description": "资料下载列表",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id":   { "type": "string" },
+          "name": { "type": "string" },
+          "size": { "type": "string" },
+          "tag":  { "type": "string" }
+        }
+      }
+    }
+  },
+  "examples": [{
+    "title":     "2026 中国（深圳）国际数字经济发展大会",
+    "enTitle":   "China (Shenzhen) Digital Economy Summit 2026",
+    "theme":     "智联万物 · 数启未来",
+    "date":      "2026-09-18",
+    "endDate":   "2026-09-20",
+    "city":      "深圳",
+    "venue":     "深圳国际会展中心",
+    "address":   "广东省深圳市宝安区福海街道展城路 1 号",
+    "about":     "2026 中国（深圳）国际数字经济发展大会以「智联万物 · 数启未来」为主题……",
+    "highlights": ["30+ 院士与权威专家主旨分享", "100+ 龙头企业与独角兽参展"],
+    "contact":   { "phone": "0755-88886666", "email": "summit@digital2026.cn", "wechat": "DigitalSummit2026" }
+  }]
+}

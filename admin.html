@@ -22,33 +22,111 @@
 
   <div class="admin-wrap">
     <div class="admin-tabs" id="adminTabs">
-      <button class="active" data-tab="meta">基本信息</button>
+      <button class="active" data-tab="meetings">会议管理</button>
+      <button data-tab="meta">基本信息</button>
       <button data-tab="speakers">嘉宾管理</button>
       <button data-tab="agenda">议程管理</button>
       <button data-tab="regs">报名管理</button>
       <button data-tab="seats">座位管理</button>
+      <button data-tab="stats">数据统计</button>
+      <button data-tab="themes">主题管理</button>
+      <button data-tab="modules">九宫格模块</button>
     </div>
 
-    <!-- 基本信息 -->
-    <section class="admin-section active" id="tab-meta">
+    <!-- v2.4 当前会议高亮条（sticky，醒目提醒管理员正在编辑哪个会议） -->
+    <div class="current-bar" id="currentBar">
+      <span class="cb-icon">📌</span>
+      <span class="cb-text">正在编辑：<b id="currentBarName">—</b></span>
+      <span class="cb-tip">切换/新建会议后，所有 tab 数据会自动刷新</span>
+    </div>
+
+    <!-- 会议管理（v2.3） -->
+    <section class="admin-section active" id="tab-meetings">
+      <div class="panel">
+        <h3>会议列表 <button class="btn sm" onclick="editMeeting()">+ 新建会议</button></h3>
+        <p class="note" style="margin-top:0">支持同时管理多个会议，每个会议有独立目录 / 数据 / 主题 / 模块。当前正在编辑：<b id="meetingCurrent">—</b></p>
+        <div class="meeting-grid" id="meetingGrid"></div>
+      </div>
+    </section>
+
+    <!-- 基本信息（v2.4：顶部元数据只读 + 业务内容可编辑） -->
+    <section class="admin-section" id="tab-meta">
       <div class="panel">
         <h3>大会基本信息</h3>
+
+        <!-- 会议元数据只读区（名称/slug/状态/语言/简介/URL）—— 在「会议管理」编辑 -->
+        <div class="meta-readonly" id="metaReadonly">
+          <div class="mr-head">
+            <h4>会议元数据 <small>（在「会议管理」tab 中可编辑）</small></h4>
+          </div>
+          <div class="mr-grid">
+            <div class="mr-row"><span class="mr-lab">会议名称</span><span class="mr-val" id="mr_name">—</span></div>
+            <div class="mr-row"><span class="mr-lab">slug</span><code class="mr-val" id="mr_slug">—</code></div>
+            <div class="mr-row"><span class="mr-lab">状态</span><span class="mr-val" id="mr_status">—</span></div>
+            <div class="mr-row"><span class="mr-lab">语言</span><span class="mr-val" id="mr_lang">—</span></div>
+            <div class="mr-row full"><span class="mr-lab">简介</span><span class="mr-val" id="mr_summary">—</span></div>
+            <div class="mr-row full url">
+              <span class="mr-lab">微站 URL</span>
+              <code class="mr-url" id="mr_url">—</code>
+              <button type="button" class="btn ghost xs" id="mr_url_copy">复制</button>
+            </div>
+          </div>
+        </div>
+
         <form id="metaForm">
+          <h4 class="form-h">时间地点</h4>
           <div class="kv">
-            <div class="field"><label>会议标题</label><input name="title" /></div>
-            <div class="field"><label>英文标题</label><input name="enTitle" /></div>
             <div class="field"><label>开始日期</label><input name="date" type="date" /></div>
             <div class="field"><label>结束日期</label><input name="endDate" type="date" /></div>
             <div class="field"><label>城市</label><input name="city" /></div>
             <div class="field"><label>场馆</label><input name="venue" /></div>
-            <div class="field"><label>地址</label><input name="address" /></div>
-            <div class="field"><label>主题</label><input name="theme" /></div>
+            <div class="field full"><label>详细地址</label><input name="address" /></div>
+          </div>
+
+          <h4 class="form-h">展示内容</h4>
+          <div class="kv">
+            <div class="field"><label>会议英文标题</label><input name="enTitle" /></div>
+            <div class="field"><label>主题风格（主题库）</label>
+              <select name="themeSelect" id="themeSelect"></select>
+            </div>
+          </div>
+          <div class="field"><label>大会介绍</label><textarea name="about" rows="4"></textarea></div>
+          <div class="field"><label>亮点标签（用逗号分隔）</label><input name="highlights" /></div>
+
+          <h4 class="form-h">联系方式</h4>
+          <div class="kv">
             <div class="field"><label>联系电话</label><input name="phone" /></div>
             <div class="field"><label>联系邮箱</label><input name="email" /></div>
             <div class="field"><label>微信公众号</label><input name="wechat" /></div>
           </div>
-          <div class="field"><label>大会介绍</label><textarea name="about" rows="4"></textarea></div>
-          <div class="field"><label>亮点标签（用逗号分隔）</label><input name="highlights" /></div>
+
+          <h4 class="form-h">会议视觉资产</h4>
+          <div class="kv">
+            <div class="field">
+              <label>会议 Logo</label>
+              <div class="asset-row">
+                <input name="logo" placeholder="https://... 或粘贴 base64" />
+                <input type="file" name="logoFile" accept="image/*" />
+                <div class="asset-preview" id="logoPreview"></div>
+              </div>
+            </div>
+            <div class="field">
+              <label>背景图（全屏）</label>
+              <div class="asset-row">
+                <input name="bgImage" placeholder="https://... 或 base64" />
+                <input type="file" name="bgFile" accept="image/*" />
+                <div class="asset-preview" id="bgPreview"></div>
+              </div>
+            </div>
+            <div class="field">
+              <label>主色（背景色）</label>
+              <div class="asset-row">
+                <input name="bgColor" type="color" value="#2f54eb" />
+                <div class="color-swatches" id="colorSwatches"></div>
+                <input name="bgColorText" placeholder="#2f54eb" />
+              </div>
+            </div>
+          </div>
           <button type="submit" class="btn">保存基本信息</button>
         </form>
       </div>
@@ -98,6 +176,124 @@
         <div id="seatEmpty" class="empty" style="display:none">暂无座位分配</div>
       </div>
     </section>
+
+    <!-- 数据统计（P0-5） -->
+    <section class="admin-section" id="tab-stats">
+      <div class="panel">
+        <h3>微站访问统计</h3>
+        <div class="stat-cards" id="statCards"></div>
+        <h4 style="margin:18px 0 6px;font-size:15px">转化漏斗</h4>
+        <div class="funnel" id="statFunnel"></div>
+        <h4 style="margin:18px 0 6px;font-size:15px">关键行为</h4>
+        <div class="bars" id="statActions"></div>
+        <p class="note">说明：当前为纯前端 localStorage 统计（单浏览器维度，UV 按设备指纹去重）。接入后端后升级为全量真实统计（全端 PV/UV、实时在线、地域分布）。</p>
+      </div>
+    </section>
+
+    <!-- 主题管理（v2.1 新增） -->
+    <section class="admin-section" id="tab-themes">
+      <div class="panel">
+        <h3>微站主题</h3>
+        <p class="note" style="margin-top:0">当前主题：<b id="themeCurrent">—</b>　|　切换后微站将渲染对应的主题（前端无管理入口，访问者不会看到后台）。</p>
+        <div class="theme-grid" id="themeGrid"></div>
+        <p class="note">注：主题仅影响前端展示；管理后台统一为同一界面，<b>仅通过 URL 直达</b>，不在微站放置任何入口链接。</p>
+      </div>
+    </section>
+
+    <!-- 九宫格模块（v2.2 新增） -->
+    <section class="admin-section" id="tab-modules">
+      <div class="panel">
+        <h3>微站九宫格模块 <button class="btn sm" onclick="editModule()">+ 新增自定义模块</button></h3>
+        <p class="note" style="margin-top:0">微站底部 / 轻量学术版顶部的导航菜单由这里控制。系统模块可关闭、可改名、可换图标，但不能删除；自定义模块可任意增删改。</p>
+        <ul class="module-list" id="moduleList"></ul>
+        <div style="margin-top:14px;display:flex;gap:8px;align-items:center">
+          <button class="btn ghost sm" onclick="resetModules()">重置为系统默认</button>
+          <span class="note" style="margin:0">提示：使用上下按钮调整显示顺序。</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Emoji 选择器弹层（v2.3） -->
+  <div class="mask" id="emojiMask">
+    <div class="sheet" style="position:relative;max-width:560px">
+      <button class="close" onclick="closeAdmin('emojiMask')">×</button>
+      <h3>选择 Emoji 图标</h3>
+      <div class="sub">多风格选择器 · 共 <span id="emojiTotal">0</span> 个</div>
+      <div class="field"><input id="emojiSearch" placeholder="搜索（类别/标签/字符）" /></div>
+      <div class="emoji-tabs" id="emojiTabs"></div>
+      <div class="emoji-grid" id="emojiGrid"></div>
+      <div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn ghost sm" onclick="closeAdmin('emojiMask')">取消</button>
+        <button class="btn sm" id="emojiConfirm" disabled>使用选中</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 会议管理弹层（v2.3） -->
+  <div class="mask" id="meetMask">
+    <div class="sheet" style="position:relative;max-width:520px">
+      <button class="close" onclick="closeAdmin('meetMask')">×</button>
+      <h3 id="meetTitle">新建会议</h3>
+      <form id="meetForm">
+        <input type="hidden" name="id" />
+        <div class="field"><label>会议名称 <span class="req">*</span></label><input name="name" maxlength="60" placeholder="如：2026 上海数字金融论坛" /></div>
+        <div class="field"><label>会议标识（slug）</label><input name="slug" placeholder="小写英文+数字，如 sh-fintech-2026" /></div>
+        <div class="field"><label>会议简介</label><textarea name="summary" rows="2" maxlength="200" placeholder="一句话简介"></textarea></div>
+        <div class="field"><label>会议状态</label>
+          <div class="seg">
+            <input type="radio" name="status" id="ms1" value="draft" checked /><label for="ms1">草稿</label>
+            <input type="radio" name="status" id="ms2" value="open" /><label for="ms2">报名中</label>
+            <input type="radio" name="status" id="ms3" value="ongoing" /><label for="ms3">进行中</label>
+            <input type="radio" name="status" id="ms4" value="closed" /><label for="ms4">已结束</label>
+          </div>
+        </div>
+        <div class="field"><label>语言</label>
+          <div class="seg">
+            <input type="radio" name="lang" id="ml1" value="zh-CN" checked /><label for="ml1">简体中文</label>
+            <input type="radio" name="lang" id="ml2" value="zh-TW" /><label for="ml2">繁體中文</label>
+            <input type="radio" name="lang" id="ml3" value="en" /><label for="ml3">English</label>
+          </div>
+        </div>
+        <button type="submit" class="btn block">保存</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 模块编辑弹层 -->
+  <div class="mask" id="modMask">
+    <div class="sheet" style="position:relative;max-width:520px">
+      <button class="close" onclick="closeAdmin('modMask')">×</button>
+      <h3 id="modTitle">新增自定义模块</h3>
+      <form id="modForm">
+        <input type="hidden" name="id" />
+        <input type="hidden" name="type" value="custom" />
+        <div class="field"><label>模块名 <span class="req">*</span></label><input name="label" maxlength="12" placeholder="如：交通指引" /></div>
+        <div class="field">
+          <label>图标（Emoji / PNG URL）</label>
+          <div class="asset-row">
+            <input name="iconOrUrl" placeholder="点右侧按钮选 Emoji，或直接粘贴 https://..." />
+            <button type="button" class="btn sm" onclick="openEmojiPicker('iconOrUrl')">🎨 选择 Emoji</button>
+            <div class="asset-preview" id="iconPreview"></div>
+          </div>
+        </div>
+        <div class="field"><label>跳转目标（href）</label><input name="href" placeholder="如 javascript:openReg() 或 https://..." /></div>
+        <div class="field"><label>打开方式</label>
+          <div class="seg">
+            <input type="radio" name="target" id="mt1" value="_self" checked /><label for="mt1">站内打开</label>
+            <input type="radio" name="target" id="mt2" value="_blank" /><label for="mt2">新窗口</label>
+          </div>
+        </div>
+        <div class="field"><label>自定义内容（弹层显示）</label>
+          <div class="field"><input name="cfg_title" placeholder="标题（选填）" /></div>
+          <div class="field"><textarea name="cfg_body" rows="4" placeholder="正文 / 注意事项 / 链接说明"></textarea></div>
+          <div class="field"><input name="cfg_link" placeholder="外链 URL（选填）" /></div>
+          <div class="field"><input name="cfg_linkText" placeholder="链接文字（默认：了解更多）" /></div>
+        </div>
+        <div class="field"><label class="check"><input type="checkbox" name="enabled" checked /> 启用此模块</label></div>
+        <button type="submit" class="btn block">保存</button>
+      </form>
+    </div>
   </div>
 
   <!-- 嘉宾编辑弹层 -->

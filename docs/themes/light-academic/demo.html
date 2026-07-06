@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <title>轻量学术版微站 · 模板骨架 demo</title>
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body class="theme-la">
+
+  <!-- 全屏背景图（fixed，可换为会议主视觉） -->
+  <div class="la-bg" id="laBg" style="background-image:url('https://picsum.photos/seed/conf/1080/1920')"></div>
+
+  <!-- 顶部 logo 浮层（绝对定位 top:10%，无 pointer-events） -->
+  <div class="la-top">
+    <img id="laLogo" src="https://dummyimage.com/600x240/2f54eb/fff&text=LOGO" alt="logo">
+    <h1 id="laTitle">2026 临床遗传学进展论坛</h1>
+    <p id="laSub">中国·上海  ·  2026年12月14-15日</p>
+  </div>
+
+  <!-- 底部 9 宫格菜单（数据驱动，由 theme.js 渲染） -->
+  <div class="la-mask"></div>
+  <nav class="la-grid" id="laGrid" aria-label="会议导航"></nav>
+
+  <!-- 底部备案 / 主办方 -->
+  <footer class="la-foot" id="laFoot">© 会议信息管理系统 · 智会行兼容版</footer>
+
+  <script src="theme.js"></script>
+</body>
+</html>
