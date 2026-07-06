@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>会议信息管理系统</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="body-pad">
+
+  <!-- 桌面顶部导航 -->
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand">
+        <span class="logo">会</span>
+        <div>会议信息管理系统<small id="brandSub">Conference System</small></div>
+      </div>
+      <nav class="topnav">
+        <a href="#home" class="active">首页</a>
+        <a href="#about">大会介绍</a>
+        <a href="#agenda">大会议程</a>
+        <a href="#speakers">嘉宾阵容</a>
+        <a href="#venue">会场交通</a>
+        <a href="#seat">座位查询</a>
+        <button class="btn sm" onclick="openReg()">报名参会</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="wrap">
+      <span class="tag" id="heroTag">官方微站</span>
+      <h1 id="heroTitle">会议标题</h1>
+      <div class="en" id="heroEn">Conference English Title</div>
+      <div class="theme" id="heroTheme">主题</div>
+      <div class="meta">
+        <div>📅 <span><b id="heroDate">日期</b></span></div>
+        <div>📍 <span><b id="heroVenue">场馆</b></span></div>
+        <div>🏙️ <span><b id="heroCity">城市</b></span></div>
+      </div>
+      <div class="countdown" id="countdown">
+        <div class="cd-box"><b id="cdD">00</b><span>天</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-box"><b id="cdH">00</b><span>时</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-box"><b id="cdM">00</b><span>分</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-box"><b id="cdS">00</b><span>秒</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 数据概览 -->
+  <section class="block wrap" id="overview">
+    <div class="stat-grid">
+      <div class="stat"><b id="stDays">3</b><span>会期天数</span></div>
+      <div class="stat"><b id="stSpeakers">30+</b><span>重磅嘉宾</span></div>
+      <div class="stat"><b id="stSessions">50+</b><span>精彩议程</span></div>
+      <div class="stat"><b id="stRegs">0</b><span>已报名</span></div>
+    </div>
+  </section>
+
+  <!-- 大会介绍 -->
+  <section class="block wrap" id="about">
+    <div class="section-head"><h2>大会介绍</h2></div>
+    <div class="card about">
+      <p id="aboutText">介绍内容</p>
+      <ul class="tags" id="aboutTags"></ul>
+    </div>
+  </section>
+
+  <!-- 大会议程 -->
+  <section class="block wrap" id="agenda">
+    <div class="section-head"><h2>大会议程</h2><span class="more">点击切换日期</span></div>
+    <div class="day-tabs" id="dayTabs"></div>
+    <div class="card">
+      <div class="agenda-list" id="agendaList"></div>
+    </div>
+  </section>
+
+  <!-- 嘉宾阵容 -->
+  <section class="block wrap" id="speakers">
+    <div class="section-head"><h2>嘉宾阵容</h2><span class="more" id="speakerCount"></span></div>
+    <div class="speaker-grid" id="speakerGrid"></div>
+  </section>
+
+  <!-- 会场交通 -->
+  <section class="block wrap" id="venue">
+    <div class="section-head"><h2>会场交通</h2></div>
+    <div class="two-col">
+      <div class="card">
+        <div class="venue-map"><span class="pin">📍</span></div>
+        <ul class="venue-info" id="venueInfo"></ul>
+      </div>
+      <div class="card">
+        <h4 style="margin:0 0 10px">交通指引</h4>
+        <ul class="venue-info">
+          <li><span class="k">地铁</span><span class="v">地铁 12 号线「会展中心」站 B 出口步行 5 分钟</span></li>
+          <li><span class="k">机场</span><span class="v">宝安国际机场驾车约 35 分钟</span></li>
+          <li><span class="k">高铁</span><span class="v">深圳北站驾车约 40 分钟</span></li>
+          <li><span class="k">停车</span><span class="v">地下停车场 P1-P3，凭参会码免费停放</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 直播 & 资料 -->
+  <section class="block wrap" id="resources">
+    <div class="section-head"><h2>直播 · 资料</h2></div>
+    <div class="live-banner">
+      <div><span class="dot"></span><b id="liveTitle">大会主论坛直播</b><br /><span style="font-size:13px;opacity:.85" id="liveState">直播即将开启</span></div>
+      <button class="btn gold sm" onclick="toast('直播入口已复制到剪贴板')">观看直播</button>
+    </div>
+    <div class="card">
+      <ul class="res-list" id="resList"></ul>
+    </div>
+  </section>
+
+  <!-- 座位查询入口 -->
+  <section class="block wrap" id="seat">
+    <div class="section-head"><h2>座位查询</h2></div>
+    <div class="card" style="text-align:center">
+      <p style="color:var(--ink-2);margin:0 0 14px">输入报名时的姓名与手机号，即可查询您的专属座位。</p>
+      <button class="btn block" onclick="openSeat()">查询我的座位</button>
+    </div>
+  </section>
+
+  <!-- 联系我们 -->
+  <section class="block wrap" id="contact">
+    <div class="section-head"><h2>联系我们</h2></div>
+    <div class="card">
+      <ul class="venue-info" id="contactInfo"></ul>
+      <p style="text-align:center;margin:16px 0 0">
+        <a class="btn ghost sm" href="admin.html">进入管理后台 →</a>
+      </p>
+    </div>
+  </section>
+
+  <footer style="text-align:center;color:var(--muted);font-size:12px;padding:24px 16px 40px">
+    <div>会议信息管理系统 · 微站演示</div>
+    <div style="margin-top:4px">微信 / 桌面浏览器自适应 · 数据本地存储</div>
+  </footer>
+
+  <!-- 移动端底部 Tab -->
+  <nav class="tabbar" id="tabbar">
+    <a href="#home" data-tab="home" class="active"><span class="ic">🏠</span>首页</a>
+    <a href="#agenda" data-tab="agenda"><span class="ic">📅</span>议程</a>
+    <a href="#speakers" data-tab="speakers"><span class="ic">🌟</span>嘉宾</a>
+    <a href="#venue" data-tab="venue"><span class="ic">📍</span>会场</a>
+    <a href="javascript:openReg()" class="cta"><span class="pill">报名</span></a>
+  </nav>
+
+  <!-- 悬浮报名 -->
+  <button class="fab" onclick="openReg()">立即<br/>报名</button>
+
+  <!-- 报名弹层 -->
+  <div class="mask" id="regMask">
+    <div class="sheet" style="position:relative">
+      <button class="close" onclick="closeMask('regMask')">×</button>
+      <h3>报名参会</h3>
+      <div class="sub" id="regSub">填写以下信息，免费领取参会名额</div>
+      <form id="regForm" novalidate>
+        <div class="field" id="f-name">
+          <label>姓名 <span class="req">*</span></label>
+          <input name="name" placeholder="请输入真实姓名" />
+          <div class="err">请填写姓名</div>
+        </div>
+        <div class="field" id="f-phone">
+          <label>手机号 <span class="req">*</span></label>
+          <input name="phone" inputmode="numeric" maxlength="11" placeholder="用于接收入场凭证" />
+          <div class="err">请填写正确的 11 位手机号</div>
+        </div>
+        <div class="field" id="f-org">
+          <label>单位 / 公司 <span class="req">*</span></label>
+          <input name="org" placeholder="请输入单位名称" />
+          <div class="err">请填写单位</div>
+        </div>
+        <div class="field" id="f-title">
+          <label>职务</label>
+          <input name="title" placeholder="选填" />
+        </div>
+        <div class="field">
+          <label>票种</label>
+          <div class="seg">
+            <input type="radio" name="ticket" id="t1" value="参会嘉宾" checked /><label for="t1">参会嘉宾</label>
+            <input type="radio" name="ticket" id="t2" value="媒体记者" /><label for="t2">媒体记者</label>
+            <input type="radio" name="ticket" id="t3" value="线上直播" /><label for="t3">线上直播</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>是否需要住宿</label>
+          <div class="seg">
+            <input type="radio" name="hotel" id="h1" value="需要" /><label for="h1">需要</label>
+            <input type="radio" name="hotel" id="h2" value="不需要" checked /><label for="h2">不需要</label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="check"><input type="checkbox" name="agree" /> 我已阅读并同意《参会须知与隐私条款》</label>
+        </div>
+        <button type="submit" class="btn block">提交报名</button>
+      </form>
+      <div id="regDone" style="display:none">
+        <div class="result">
+          <div style="font-size:46px">✅</div>
+          <h3>报名成功！</h3>
+          <div class="big" id="regCode">NO. —</div>
+          <p style="color:var(--ink-2)">您的专属座位已生成，可在「座位查询」中查看。<br/>入场凭证已模拟发送，请截图保存。</p>
+          <button class="btn block" onclick="closeMask('regMask');openSeat()">查看我的座位</button>
+          <button class="btn ghost block" style="margin-top:10px" onclick="closeMask('regMask')">完成</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 座位查询弹层 -->
+  <div class="mask" id="seatMask">
+    <div class="sheet" style="position:relative">
+      <button class="close" onclick="closeMask('seatMask')">×</button>
+      <h3>座位查询</h3>
+      <div class="sub">输入报名时使用的姓名与手机号</div>
+      <form id="seatForm" novalidate>
+        <div class="field" id="sf-name">
+          <label>姓名 <span class="req">*</span></label>
+          <input name="name" placeholder="请输入姓名" />
+          <div class="err">请填写姓名</div>
+        </div>
+        <div class="field" id="sf-phone">
+          <label>手机号 <span class="req">*</span></label>
+          <input name="phone" inputmode="numeric" maxlength="11" placeholder="请输入手机号" />
+          <div class="err">请填写正确的 11 位手机号</div>
+        </div>
+        <button type="submit" class="btn block">查询座位</button>
+      </form>
+      <div id="seatResult" style="display:none"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/site.js"></script>
+</body>
+</html>

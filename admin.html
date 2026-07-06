@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>会议信息管理后台</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="admin">
+
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand">
+        <span class="logo">管</span>
+        <div>会议信息管理后台<small>Conference Admin</small></div>
+      </div>
+      <nav class="topnav">
+        <a href="index.html">← 返回微站</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="admin-wrap">
+    <div class="admin-tabs" id="adminTabs">
+      <button class="active" data-tab="meta">基本信息</button>
+      <button data-tab="speakers">嘉宾管理</button>
+      <button data-tab="agenda">议程管理</button>
+      <button data-tab="regs">报名管理</button>
+      <button data-tab="seats">座位管理</button>
+    </div>
+
+    <!-- 基本信息 -->
+    <section class="admin-section active" id="tab-meta">
+      <div class="panel">
+        <h3>大会基本信息</h3>
+        <form id="metaForm">
+          <div class="kv">
+            <div class="field"><label>会议标题</label><input name="title" /></div>
+            <div class="field"><label>英文标题</label><input name="enTitle" /></div>
+            <div class="field"><label>开始日期</label><input name="date" type="date" /></div>
+            <div class="field"><label>结束日期</label><input name="endDate" type="date" /></div>
+            <div class="field"><label>城市</label><input name="city" /></div>
+            <div class="field"><label>场馆</label><input name="venue" /></div>
+            <div class="field"><label>地址</label><input name="address" /></div>
+            <div class="field"><label>主题</label><input name="theme" /></div>
+            <div class="field"><label>联系电话</label><input name="phone" /></div>
+            <div class="field"><label>联系邮箱</label><input name="email" /></div>
+            <div class="field"><label>微信公众号</label><input name="wechat" /></div>
+          </div>
+          <div class="field"><label>大会介绍</label><textarea name="about" rows="4"></textarea></div>
+          <div class="field"><label>亮点标签（用逗号分隔）</label><input name="highlights" /></div>
+          <button type="submit" class="btn">保存基本信息</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 嘉宾管理 -->
+    <section class="admin-section" id="tab-speakers">
+      <div class="panel">
+        <h3>嘉宾列表 <button class="btn sm" onclick="editSpeaker()">+ 新增嘉宾</button></h3>
+        <table class="table">
+          <thead><tr><th>姓名</th><th>头衔</th><th>单位</th><th>演讲主题</th><th>操作</th></tr></thead>
+          <tbody id="speakerBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 议程管理 -->
+    <section class="admin-section" id="tab-agenda">
+      <div class="panel">
+        <h3>议程安排</h3>
+        <div id="agendaAdmin"></div>
+        <button class="btn sm" onclick="addDay()">+ 新增日期</button>
+      </div>
+    </section>
+
+    <!-- 报名管理 -->
+    <section class="admin-section" id="tab-regs">
+      <div class="panel">
+        <h3>报名记录 <button class="btn sm ghost" onclick="exportRegs()">导出 CSV</button></h3>
+        <table class="table">
+          <thead><tr><tr><th>姓名</th><th>手机</th><th>单位</th><th>票种</th><th>住宿</th><th>时间</th><th>操作</th></tr></thead>
+          <tbody id="regBody"></tbody>
+        </table>
+        <div id="regEmpty" class="empty" style="display:none">暂无报名记录</div>
+      </div>
+    </section>
+
+    <!-- 座位管理 -->
+    <section class="admin-section" id="tab-seats">
+      <div class="panel">
+        <h3>座位分配</h3>
+        <p style="color:var(--muted);font-size:13px;margin-top:0">系统在报名时自动分配座位（A/B/C 区）。以下为已分配记录。</p>
+        <table class="table">
+          <thead><tr><th>姓名</th><th>手机</th><th>座位号</th><th>区域</th></tr></thead>
+          <tbody id="seatBody"></tbody>
+        </table>
+        <div id="seatEmpty" class="empty" style="display:none">暂无座位分配</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 嘉宾编辑弹层 -->
+  <div class="mask" id="spMask">
+    <div class="sheet" style="position:relative;max-width:520px">
+      <button class="close" onclick="closeAdmin('spMask')">×</button>
+      <h3 id="spTitle">编辑嘉宾</h3>
+      <form id="spForm">
+        <input type="hidden" name="id" />
+        <div class="field"><label>姓名</label><input name="name" /></div>
+        <div class="field"><label>头衔</label><input name="title" /></div>
+        <div class="field"><label>单位</label><input name="org" /></div>
+        <div class="field"><label>演讲主题</label><input name="topic" /></div>
+        <div class="field"><label>头像字（1字）</label><input name="avatar" maxlength="2" /></div>
+        <div class="field"><label>主题色</label><input name="color" value="#2f54eb" /></div>
+        <button type="submit" class="btn block">保存</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>
