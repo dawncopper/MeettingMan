@@ -307,7 +307,12 @@
         <div class="field"><label>头衔</label><input name="title" /></div>
         <div class="field"><label>单位</label><input name="org" /></div>
         <div class="field"><label>演讲主题</label><input name="topic" /></div>
-        <div class="field"><label>头像字（1字）</label><input name="avatar" maxlength="2" /></div>
+        <div class="field"><label>照片（选填，留空则自动显示姓名首字头像）</label>
+          <input name="photo" placeholder="https://... 或粘贴 base64" />
+          <input type="file" name="photoFile" accept="image/*" style="margin-top:6px" />
+          <img id="spPhotoPrev" class="sp-photo-prev" style="display:none" alt="照片预览" />
+          <button type="button" class="sp-clear" onclick="clearSpPhoto()">清除照片</button>
+        </div>
         <div class="field"><label>主题色</label><input name="color" value="#2f54eb" /></div>
         <button type="submit" class="btn block">保存</button>
       </form>

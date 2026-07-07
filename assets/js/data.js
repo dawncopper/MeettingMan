@@ -158,12 +158,12 @@
     },
 
     speakers: [
-      { id: 's1', name: '李建国', title: '中国工程院院士', org: '清华大学', topic: '人工智能赋能新型工业化', avatar: '李', color: '#2f54eb' },
-      { id: 's2', name: 'Wang Lei', title: '首席科学家', org: '某科技集团', topic: '大模型时代的产业落地', avatar: 'W', color: '#722ed1' },
-      { id: 's3', name: '陈晓芸', title: '教授 / 博导', org: '中国科学院', topic: '数据要素市场化配置', avatar: '陈', color: '#13c2c2' },
-      { id: 's4', name: '张明', title: 'CEO', org: '云启科技', topic: '产业互联网的下一站', avatar: '张', color: '#fa8c16' },
-      { id: 's5', name: 'Sarah Chen', title: 'VP of AI', org: 'Global Tech', topic: 'Responsible AI at Scale', avatar: 'S', color: '#eb2f96' },
-      { id: 's6', name: '刘洋', title: '研究院院长', org: '国家信息中心', topic: '数字治理与数据安全', avatar: '刘', color: '#2f54eb' }
+      { id: 's1', name: '李建国', title: '中国工程院院士', org: '清华大学', topic: '人工智能赋能新型工业化', avatar: '李', color: '#2f54eb', photo: '' },
+      { id: 's2', name: 'Wang Lei', title: '首席科学家', org: '某科技集团', topic: '大模型时代的产业落地', avatar: 'W', color: '#722ed1', photo: '' },
+      { id: 's3', name: '陈晓芸', title: '教授 / 博导', org: '中国科学院', topic: '数据要素市场化配置', avatar: '陈', color: '#13c2c2', photo: '' },
+      { id: 's4', name: '张明', title: 'CEO', org: '云启科技', topic: '产业互联网的下一站', avatar: '张', color: '#fa8c16', photo: '' },
+      { id: 's5', name: 'Sarah Chen', title: 'VP of AI', org: 'Global Tech', topic: 'Responsible AI at Scale', avatar: 'S', color: '#eb2f96', photo: '' },
+      { id: 's6', name: '刘洋', title: '研究院院长', org: '国家信息中心', topic: '数字治理与数据安全', avatar: '刘', color: '#2f54eb', photo: '' }
     ],
 
     agenda: [

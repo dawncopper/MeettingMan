@@ -144,6 +144,20 @@
   }
   bindFileToInput($('metaForm').elements['logoFile'], $('metaForm').elements['logo'], paintLogoPreview);
   bindFileToInput($('metaForm').elements['bgFile'],  $('metaForm').elements['bgImage'], paintBgPreview);
+  /* 嘉宾照片上传 + 预览 + 清除 */
+  function paintSpPhotoPreview() {
+    var src = $('spForm').elements['photo'].value.trim();
+    var p = $('spPhotoPrev');
+    if (src) { p.src = src; p.style.display = 'block'; } else { p.removeAttribute('src'); p.style.display = 'none'; }
+  }
+  bindFileToInput($('spForm').elements['photoFile'], $('spForm').elements['photo'], paintSpPhotoPreview);
+  $('spForm').elements['photo'].oninput = paintSpPhotoPreview;
+  window.clearSpPhoto = function () {
+    var f = $('spForm');
+    f.elements['photo'].value = '';
+    if (f.elements['photoFile']) f.elements['photoFile'].value = '';
+    paintSpPhotoPreview();
+  };
 
   $('metaForm').addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -195,8 +209,9 @@
     f.elements['title'].value = sp ? sp.title : '';
     f.org.value = sp ? sp.org : '';
     f.topic.value = sp ? sp.topic : '';
-    f.avatar.value = sp ? sp.avatar : '';
+    f.photo.value = sp ? sp.photo : '';
     f.color.value = sp ? sp.color : '#2f54eb';
+    paintSpPhotoPreview();
     $('spMask').classList.add('show');
   };
   window.delSpeaker = async function (id) {
@@ -209,8 +224,10 @@
     e.preventDefault();
     var f = e.target;
     var list = await S.getSpeakers();
-    var obj = { id: f.elements['id'].value || S.uid('s'), name: f.elements['name'].value.trim(), title: f.elements['title'].value.trim(),
-      org: f.org.value.trim(), topic: f.topic.value.trim(), avatar: f.avatar.value.trim() || f.elements['name'].value.trim().slice(0, 1),
+    var nm = f.elements['name'].value.trim();
+    var obj = { id: f.elements['id'].value || S.uid('s'), name: nm, title: f.elements['title'].value.trim(),
+      org: f.org.value.trim(), topic: f.topic.value.trim(),
+      avatar: nm.slice(0, 1), photo: f.photo.value.trim(),
       color: f.color.value };
     if (f.elements['id'].value) {
       list = list.map(function (x) { return x.id === obj.id ? obj : x; });

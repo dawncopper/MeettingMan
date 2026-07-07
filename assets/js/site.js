@@ -6,6 +6,7 @@
   'use strict';
   var S = window.ConfStore;
   await S.init();
+  function escAttr(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
 
   /* v2.4 多会议路由：?m=<slug> 切换当前会议
    * 串行执行：先 listMeetings → 匹配 → setCurrentMeeting，再读数据
@@ -111,11 +112,14 @@
   speakers.forEach(function (sp) {
     var d = document.createElement('div');
     d.className = 'speaker';
+    var ava = sp.photo
+      ? '<img class="ava" src="' + escAttr(sp.photo) + '" alt="' + escAttr(sp.name) + '" />'
+      : '<div class="ava" style="background:' + escAttr(sp.color || '#2f54eb') + '">' + escAttr(sp.avatar || (sp.name || '?').slice(0, 1)) + '</div>';
     d.innerHTML =
-      '<div class="ava" style="background:' + (sp.color || '#2f54eb') + '">' + (sp.avatar || sp.name.slice(0, 1)) + '</div>' +
-      '<h4>' + sp.name + '</h4>' +
-      '<div class="role">' + sp.title + ' · ' + sp.org + '</div>' +
-      '<div class="topic">' + (sp.topic || '') + '</div>';
+      ava +
+      '<h4>' + escAttr(sp.name) + '</h4>' +
+      '<div class="role">' + escAttr(sp.title) + ' · ' + escAttr(sp.org) + '</div>' +
+      '<div class="topic">' + escAttr(sp.topic || '') + '</div>';
     grid.appendChild(d);
   });
 
