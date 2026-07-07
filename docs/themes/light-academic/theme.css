@@ -13,12 +13,13 @@
 
 :root {
   --la-brand: #2f54eb;
-  --la-bg-overlay: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 55%, rgba(0,0,0,.85) 100%);
-  --la-card-bg: rgba(0, 0, 0, .32);
-  --la-card-radius: 10px;
+  --la-brand-2: #722ed1;
+  --la-bg-overlay: linear-gradient(180deg, rgba(247,249,255,.55) 0%, rgba(247,249,255,.9) 100%);
+  --la-card-bg: #ffffff;
+  --la-card-radius: 12px;
   --la-icon-size: 44px;
-  --la-title-color: #ffffff;
-  --la-foot-color: rgba(255, 255, 255, .55);
+  --la-title-color: #1a1f3a;
+  --la-foot-color: #8a8a8a;
   --la-maxw: 720px;
 }
 
@@ -28,7 +29,7 @@ html, body { margin: 0; padding: 0; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
   color: var(--la-title-color);
-  background: #0a0e1c;
+  background: #f7f9ff;
   min-height: 100vh;  /* 保留，作为背景色兜底 */
   overflow-x: hidden;
   /* v2.10.7：让 body 高度按内容撑开（多行 grid 不被切） */
@@ -42,35 +43,41 @@ button { font-family: inherit; }
 /* ---------- 全屏背景图（fixed） ---------- */
 .la-bg {
   position: fixed; inset: 0; z-index: 0;
+  background-color: #f7f9ff;
   background-size: cover; background-position: center center; background-repeat: no-repeat;
   background-attachment: fixed;
 }
+.la-bg::after {
+  content: ""; position: absolute; inset: 0;
+  background: var(--la-bg-overlay);
+  pointer-events: none;
+}
 
-/* ---------- 顶部 logo 浮层（v2.10.8：紧凑，紧贴九宫格） ---------- */
+/* ---------- 顶部品牌条（v2.10.14：蓝色渐变，与二级页 .la-p2-bar 统一） ---------- */
 .la-top {
   position: relative; z-index: 1;
-  text-align: center; padding: 4vh 16px 0;
+  text-align: center; padding: 18px 16px 20px;
+  background: linear-gradient(135deg, #1d2b6b, #2f54eb);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
   pointer-events: none; /* 让位下方链接 */
 }
 .la-top img {
-  width: 50%; max-width: 280px; margin: 0 auto 10px;
-  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, .45));
+  width: 40%; max-width: 200px; margin: 0 auto 10px;
+  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, .25));
 }
 .la-top h1 {
-  font-size: 20px; font-weight: 800; margin: 0 0 4px; line-height: 1.3;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, .55);
+  font-size: 20px; font-weight: 800; margin: 0 0 4px; line-height: 1.3; color: #fff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, .25);
 }
 .la-top p {
-  font-size: 13px; margin: 0; color: rgba(255, 255, 255, .82);
-  text-shadow: 0 1px 6px rgba(0, 0, 0, .55);
+  font-size: 13px; margin: 0; color: rgba(255, 255, 255, .85);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .25);
 }
 
-/* ---------- 黑色蒙层（让底部图标可读） ---------- */
+/* ---------- 黑色蒙层（v2.10.14：浅色主题下不再需要深色蒙层） ---------- */
 .la-mask {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1;
-  height: 50vh;          /* v2.10.9：65vh → 50vh，蒙层不要太高遮 5 行 grid */
-  background: var(--la-bg-overlay);
-  pointer-events: none;
+  display: none;
 }
 
 /* ---------- 9 宫格图标菜单（v2.10.13：恢复大 cell + > 9 自然换行） ---------- */
@@ -93,36 +100,40 @@ button { font-family: inherit; }
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
   padding: 6px;
   background: var(--la-card-bg);
-  border: 1px solid rgba(255, 255, 255, .08);
+  border: 1px solid #eef0f6;
   border-radius: var(--la-card-radius);
   color: var(--la-title-color);
   text-align: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .04);
   transition: transform .12s ease, background-color .12s ease;
   -webkit-tap-highlight-color: transparent;
   box-sizing: border-box;
   overflow: hidden;
 }
-.la-grid a:active { transform: scale(.96); background: rgba(255, 255, 255, .12); }
+.la-grid a:active { transform: scale(.96); background: #eef1ff; }
 /* v2.10.12：cols-4/5 不再缩小 icon/文字（用户反馈），icon 保留 38px */
 /* 13 个时 5 行总高 5×~78 + 顶部 100 = 490px，screen > 490px 的直接可见，< 的可向下滚动 */
 /* v2.10.7：空占位（不足 9 个 enabled 模块时补齐） */
 .la-grid .empty-slot {
-  background: rgba(255, 255, 255, .04);
-  border: 1px dashed rgba(255, 255, 255, .15);
+  background: #f0f3ff;
+  border: 1px dashed #c2cff0;
   pointer-events: none;
 }
 .la-grid .ico {
   width: var(--la-icon-size); height: var(--la-icon-size);
   display: grid; place-items: center;
   font-size: 24px;
-  background: rgba(255, 255, 255, .92);
+  background: #eef1ff;
   color: var(--la-brand);
   border-radius: 50%;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+  box-shadow: 0 2px 8px rgba(47, 84, 235, .12);
+  margin: 0;          /* v2.10.15：清除 <p> 默认外边距，避免手机端内容过高被裁切 */
+  flex-shrink: 0;     /* 图标尺寸恒定，不被 flex 压缩变形 */
 }
 .la-grid .ico img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 .la-grid .title {
-  font-size: 13px; font-weight: 700; line-height: 1.2;
+  font-size: 13px; font-weight: 700; line-height: 1.2; color: var(--la-title-color);
+  margin: 0;         /* v2.10.15：同上 */
   max-width: 100%;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
@@ -136,21 +147,19 @@ button { font-family: inherit; }
 
 /* ---------- 桌面适配（保持同布局，居中放大） ---------- */
 @media (min-width: 760px) {
-  .la-top { padding-top: 6vh; }
+  .la-top { padding: 28px 16px 30px; }
   .la-top h1 { font-size: 28px; }
   .la-top p { font-size: 15px; }
-  .la-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; padding: 0 24px 24px; margin-top: 32px; }
+  .la-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; padding: 0 24px 24px; margin-top: 20px; }
   .la-grid .ico { width: 56px; height: 56px; font-size: 28px; }
   .la-grid .title { font-size: 14px; }
-  .la-mask { height: 70vh; }
 }
 @media (min-width: 1024px) {
-  .la-top img { width: 40%; }
+  .la-top img { width: 36%; }
   .la-grid { max-width: 640px; }
 }
 
-/* ---------- 大屏一屏装不下 9 个时启用滚动 ---------- */
+/* ---------- 短屏适配 ---------- */
 @media (max-height: 640px) {
-  .la-grid { margin-top: 24vh; }
-  .la-mask { height: 80vh; }
+  .la-grid { margin-top: 12px; }
 }

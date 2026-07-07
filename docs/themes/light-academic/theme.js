@@ -52,8 +52,14 @@
     if (item.iconUrl) ico.appendChild(el('img', { src: item.iconUrl, alt: item.label }));
     else ico.textContent = item.icon || '•';
     a.appendChild(ico);
-    a.appendChild(el('p', { class: 'title' }, [item.label]));
-    if (item.primary) a.style.background = 'rgba(47, 84, 235, .85)';
+    var titleEl = el('p', { class: 'title' }, [item.label]);
+    a.appendChild(titleEl);
+    // v2.10.14：浅色主题下主推模块用蓝紫渐变卡 + 白字，保证可读性
+    if (item.primary) {
+      a.style.background = 'linear-gradient(135deg, #2f54eb, #722ed1)';
+      a.style.color = '#fff';
+      titleEl.style.color = '#fff';
+    }
     return a;
   }
 

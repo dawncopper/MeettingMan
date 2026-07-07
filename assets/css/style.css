@@ -527,7 +527,7 @@ body.theme-la header.topbar,
 body.theme-la main,
 body.theme-la nav.tabbar,
 body.theme-la .fab { display: none !important; }
-body.theme-la { background: #0a0e1c; }
+body.theme-la { background: #f7f9ff; }
 
 /* v2.7 light-academic 二级页（page2） */
 .la-page2 {
